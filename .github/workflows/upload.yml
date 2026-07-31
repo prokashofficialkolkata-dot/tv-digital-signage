@@ -1,14 +1,9 @@
 name: Upload Images
 
 on:
-  workflow_dispatch:
-    inputs:
-      filename:
-        required: true
-        type: string
-      image:
-        required: true
-        type: string
+  repository_dispatch:
+    types:
+      - upload-image
 
 jobs:
   upload:
@@ -20,8 +15,8 @@ jobs:
         with:
           github-token: ${{ secrets.UPLOAD_TOKEN }}
           script: |
-            const filename = core.getInput('filename');
-            const image = core.getInput('image');
+            const filename = context.payload.client_payload.filename;
+            const image = context.payload.client_payload.image;
 
             await github.rest.repos.createOrUpdateFileContents({
               owner: context.repo.owner,
