@@ -1,5 +1,5 @@
 const GITHUB_OWNER = "prokashofficialkolkata-dot";
-const GITHUB_REPO = "tv-digital-signage";
+const GITHUB_REPO = "tv2";
 const IMAGE_FOLDER = "images";
 
 async function uploadImages() {
