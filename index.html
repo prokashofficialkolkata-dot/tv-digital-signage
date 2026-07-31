@@ -192,7 +192,16 @@ file.name.toLowerCase().endsWith(".png")
 
 )
 
-.sort((a,b)=>a.name.localeCompare(b.name))
+.sort((a, b) => {
+    const numA = parseInt(a.name.match(/\d+/)?.[0] || 0);
+    const numB = parseInt(b.name.match(/\d+/)?.[0] || 0);
+
+    if (numA !== numB) {
+        return numA - numB;
+    }
+
+    return a.name.localeCompare(b.name);
+})
 
 
 .map(file=>file.download_url);
@@ -245,14 +254,7 @@ active=0;
 
 
 
-current++;
-
-
-if(current>=pictures.length){
-
-current=0;
-
-}
+current = (current + 1) % pictures.length;
 
 
 }
