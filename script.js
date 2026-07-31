@@ -1,11 +1,7 @@
-// GitHub Upload Settings
-
-const GITHUB_USERNAME = "prokashofficialkolkata-dot";
-const REPOSITORY_NAME = "tv-digital-signage";
+const GITHUB_OWNER = "prokashofficialkolkata-dot";
+const GITHUB_REPO = "tv-digital-signage";
 const IMAGE_FOLDER = "images";
 
-
-// Upload Images Function
 
 async function uploadImages(){
 
@@ -13,59 +9,65 @@ async function uploadImages(){
     const message = document.getElementById("message");
 
     if(files.length === 0){
-        message.innerHTML = "Please select images first";
+        message.innerHTML = "Please select images";
         return;
     }
 
 
-    message.innerHTML = "Uploading images...";
+    message.innerHTML = "Uploading...";
 
 
-    for(let file of files){
+    for (const file of files){
 
-        const reader = new FileReader();
+        const base64 = await convertBase64(file);
 
-
-        reader.onload = async function(){
-
-            const base64Image = reader.result.split(",")[1];
+        const fileName = Date.now() + "-" + file.name;
 
 
-            const fileName = Date.now() + "-" + file.name;
+        await fetch(
+        "https://api.github.com/repos/"+GITHUB_OWNER+"/"+GITHUB_REPO+"/dispatches",
+        {
+            method:"POST",
 
+            headers:{
+                "Accept":"application/vnd.github+json",
+                "Content-Type":"application/json"
+            },
 
-            const url =
-            `https://api.github.com/repos/${GITHUB_USERNAME}/${REPOSITORY_NAME}/contents/${IMAGE_FOLDER}/${fileName}`;
+            body:JSON.stringify({
 
+                event_type:"upload-image",
 
-            await fetch(url,{
-                method:"PUT",
+                client_payload:{
+                    filename:fileName,
+                    image:base64.split(",")[1]
+                }
 
-                headers:{
-                    "Authorization":"Bearer YOUR_TOKEN_HERE",
-                    "Content-Type":"application/json"
-                },
+            })
+        });
 
-
-                body:JSON.stringify({
-
-                    message:"Upload slide image",
-
-                    content:base64Image
-
-                })
-
-            });
-
-
-        };
-
-
-        reader.readAsDataURL(file);
 
     }
 
 
     message.innerHTML="All images uploaded successfully";
+
+}
+
+
+
+function convertBase64(file){
+
+    return new Promise((resolve,reject)=>{
+
+        const reader = new FileReader();
+
+        reader.readAsDataURL(file);
+
+        reader.onload=()=>resolve(reader.result);
+
+        reader.onerror=error=>reject(error);
+
+    });
 
 }
