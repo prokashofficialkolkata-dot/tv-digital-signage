@@ -1,677 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Digital Signage Admin</title>
-
+<title>Hameeds TV Admin Panel</title>
 
 <style>
-
 body{
     margin:0;
-    padding:20px;
-    background:#111;
+    font-family:Arial, sans-serif;
+    background:#111827;
     color:white;
-    font-family:Arial,sans-serif;
-    text-align:center;
 }
 
+.container{
+    max-width:700px;
+    margin:auto;
+    padding:20px;
+}
 
 h1{
-    color:#f5c400;
+    text-align:center;
+    color:#facc15;
 }
 
+.card{
+    background:#1f2937;
+    padding:20px;
+    border-radius:15px;
+    margin-top:20px;
+}
 
-
-input{
-    padding:10px;
-    margin:8px;
-    border-radius:6px;
+input,button{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border-radius:8px;
     border:none;
+    font-size:16px;
 }
-
-
 
 button{
-
-    padding:12px 20px;
-    margin:5px;
-    border:none;
-    border-radius:8px;
+    background:#facc15;
+    color:#000;
+    font-weight:bold;
     cursor:pointer;
-    font-size:16px;
-
 }
 
-
-.login-btn,
-.save-btn{
-
-    background:#f5c400;
-    color:black;
-
-}
-
-
-
-.delete-btn{
-
-    background:red;
-    color:white;
-
-}
-
-
-
-.clear-btn{
-
-    background:#d00000;
-    color:white;
-
-}
-
-
-
-
-#adminPanel{
-
-    display:none;
-
-}
-
-
-
-#gallery{
-
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    gap:20px;
-    margin-top:30px;
-
-}
-
-
-
-
-.photo{
-
-    width:200px;
-    height:130px;
-    position:relative;
-    cursor:move;
-
-}
-
-
-
-
-.photo img{
-
-    width:100%;
-    height:100%;
+#preview img{
+    width:120px;
+    height:80px;
     object-fit:cover;
-    border-radius:10px;
-
+    margin:5px;
+    border-radius:8px;
 }
 
-
-
-
-.delete{
-
-    position:absolute;
-    right:5px;
-    top:5px;
-
-    width:30px;
-    height:30px;
-
-    border-radius:50%;
-
-    background:red;
-    color:white;
-
-    border:none;
-
-    font-size:18px;
-
+#message{
+    margin-top:15px;
+    text-align:center;
+    color:#22c55e;
 }
-
-
 
 </style>
 
 </head>
 
-
 <body>
 
+<div class="container">
+
+<h1>Hameeds TV Admin Panel</h1>
 
 
-<div id="loginBox">
+<div class="card">
 
+<h3>Upload Slide Images</h3>
 
-<h1>Admin Login</h1>
+<input type="file" id="images" multiple accept="image/*">
 
-
-<input id="user"
-placeholder="Username">
-
-
-<br>
-
-
-<input id="pass"
-type="password"
-placeholder="Password">
-
-
-<br>
-
-
-<button class="login-btn" onclick="login()">
-LOGIN
+<button onclick="uploadImages()">
+Upload All Images
 </button>
 
 
-<p id="error"></p>
-
+<div id="message"></div>
 
 </div>
 
 
 
-<div id="adminPanel">
+<div class="card">
 
+<h3>Current Images</h3>
 
-<h1>Digital Signage Admin</h1>
+<div id="preview"></div>
 
-
-<input 
-type="file"
-id="upload"
-multiple
-accept="image/*">
-
-
-<br>
-
-
-<button class="save-btn" onclick="saveOrder()">
-SAVE ORDER
-</button>
-
-
-<button class="clear-btn" onclick="clearImages()">
-CLEAR ALL IMAGES
-</button>
-
-  <button class="save-btn" onclick="changeLogin()">
-CHANGE LOGIN
-  </button>
-
-<div id="gallery"></div>
-
-
-</div><script>
-
-let db;
-
-let images=[];
-
-
-// Default Login
-
-let username="admin";
-let password="12345";
-
-
-
-// Open Database
-
-let request=indexedDB.open("TVSlideDB",1);
-
-
-
-request.onsuccess=function(e){
-
-    db=e.target.result;
-
-};
-
-
-
-
-
-// Login
-  function changeLogin(){
-
-let newUser = prompt(
-"Enter New Username"
-);
-
-
-let newPass = prompt(
-"Enter New Password"
-);
-
-
-
-if(newUser && newPass){
-
-
-localStorage.setItem(
-"adminUser",
-newUser
-);
-
-
-localStorage.setItem(
-"adminPass",
-newPass
-);
-
-
-alert(
-"Username & Password Changed Successfully"
-);
-
-
-}
-
-  }
-
-function login(){
-
-
-let u=document.getElementById("user").value;
-
-let p=document.getElementById("pass").value;
-
-username =
-localStorage.getItem("adminUser")
-|| "admin";
-
-
-password =
-localStorage.getItem("adminPass")
-|| "12345";
-
-if(u===username && p===password){
-
-
-document.getElementById("loginBox").style.display="none";
-
-
-document.getElementById("adminPanel").style.display="block";
-
-
-loadImages();
-
-
-}
-
-else{
-
-
-document.getElementById("error").innerHTML=
-"Wrong Username or Password";
-
-
-}
-
-
-
-}
-
-
-
-
-
-
-// Upload Images
-
-
-document.getElementById("upload")
-.addEventListener("change",function(){
-
-
-
-let files=this.files;
-
-
-
-for(let i=0;i<files.length;i++){
-
-
-
-let reader=new FileReader();
-
-
-
-reader.onload=function(e){
-
-
-
-let tx=db.transaction(
-["images"],
-"readwrite"
-);
-
-
-
-let store=tx.objectStore("images");
-
-
-
-store.add({
-
-image:e.target.result
-
-});
-
-
-
-tx.oncomplete=function(){
-
-loadImages();
-
-};
-
-
-
-};
-
-
-
-reader.readAsDataURL(files[i]);
-
-
-
-}
-
-
-
-});
-
-
-
-
-
-
-
-
-// Load Images
-
-
-function loadImages(){
-
-
-
-let gallery=document.getElementById("gallery");
-
-
-gallery.innerHTML="";
-
-
-
-let tx=db.transaction(
-["images"],
-"readonly"
-);
-
-
-
-let store=tx.objectStore("images");
-
-
-
-store.openCursor().onsuccess=function(e){
-
-
-
-let cursor=e.target.result;
-
-
-
-if(cursor){
-
-
-
-gallery.innerHTML += `
-
-
-<div class="photo"
-draggable="true"
-data-id="${cursor.value.id}">
-
-
-<img src="${cursor.value.image}">
-
-
-
-<button class="delete"
-onclick="deleteImage(${cursor.value.id})">
-
-×
-
-</button>
+</div>
 
 
 </div>
 
 
-`;
-
-
-
-cursor.continue();
-
-
-
-}
-
-
-
-};
-
-
-
-}
-
-
-
-
-// Delete Single Image
-
-
-function deleteImage(id){
-
-
-
-let tx=db.transaction(
-["images"],
-"readwrite"
-);
-
-
-
-tx.objectStore("images").delete(id);
-
-
-
-tx.oncomplete=function(){
-
-loadImages();
-
-};
-
-
-}
-
-
-
-
-
-
-
-// Clear All Images
-
-
-function clearImages(){
-
-
-
-let ok=confirm(
-"Delete all images?"
-);
-
-
-
-if(ok){
-
-
-let tx=db.transaction(
-["images"],
-"readwrite"
-);
-
-
-
-tx.objectStore("images").clear();
-
-
-
-tx.oncomplete=function(){
-
-loadImages();
-
-};
-
-
-}
-
-
-
-}
-
-
-
-
-
-
-// Drag Drop Order
-
-
-let gallery=document.getElementById("gallery");
-
-
-let dragItem=null;
-
-
-
-gallery.addEventListener(
-"dragstart",
-function(e){
-
-
-dragItem=e.target;
-
-
-});
-
-
-
-
-gallery.addEventListener(
-"dragover",
-function(e){
-
-e.preventDefault();
-
-});
-
-
-
-
-gallery.addEventListener(
-"drop",
-function(e){
-
-
-e.preventDefault();
-
-
-
-if(e.target.className==="photo"){
-
-
-
-gallery.insertBefore(
-dragItem,
-e.target
-);
-
-
-saveOrder();
-
-
-
-}
-
-
-
-});
-
-
-
-
-
-
-
-function saveOrder(){
-
-
-let order=[];
-
-
-
-document.querySelectorAll(".photo")
-.forEach(function(item){
-
-
-order.push(
-item.getAttribute("data-id")
-);
-
-
-});
-
-
-
-localStorage.setItem(
-"imageOrder",
-JSON.stringify(order)
-);
-
-
-
-alert("Order Saved");
-
-
-}
-
-
-
-
-</script>
-
+<script src="script.js"></script>
 
 </body>
-
 </html>
