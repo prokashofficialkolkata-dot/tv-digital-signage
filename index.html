@@ -1,173 +1,109 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Hameeds TV Digital Signage</title>
 
 <style>
-
-html,body{
+html, body {
     margin:0;
     padding:0;
     width:100%;
     height:100%;
-    overflow:hidden;
     background:black;
+    overflow:hidden;
 }
 
-
-#slideshow{
+#slide {
     width:100%;
     height:100%;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    object-fit:contain;
+    transition:opacity 1.5s;
 }
-
-
-#slideImage{
-
-    width:100%;
-    height:100%;
-
-    object-fit:cover;
-
-    opacity:1;
-
-    transition:opacity 1.5s ease-in-out;
-
-}
-
-
-.fade{
-    opacity:0;
-}
-
-
 </style>
 
 </head>
 
-
 <body>
 
-
-<div id="slideshow">
-
-<img id="slideImage" src="" alt="Food">
-
-</div>
-
-
+<img id="slide">
 
 <script>
 
-
 const OWNER = "prokashofficialkolkata-dot";
-
 const REPO = "tv-digital-signage";
-
 const FOLDER = "images";
 
+let pictures = [];
+let current = 0;
 
-let images=[];
-
-let current=0;
-
-
-
-async function loadImages(){
+const img = document.getElementById("slide");
 
 
-    const api =
+async function loadPictures(){
+
+    const url =
     `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FOLDER}`;
 
+    const response = await fetch(url);
 
-    const response = await fetch(api);
-
-
-    const data = await response.json();
+    const files = await response.json();
 
 
-    images = data
-    .filter(file=>file.type==="file")
-    .map(file=>file.download_url);
+    pictures = files
+    .filter(file =>
+        file.name.toLowerCase().endsWith(".jpg") ||
+        file.name.toLowerCase().endsWith(".jpeg") ||
+        file.name.toLowerCase().endsWith(".png")
+    )
+    .map(file => file.download_url);
 
 
-
-    if(images.length>0){
-
-        showImage();
-
-    }
+    showSlide();
 
 }
 
 
 
-function showImage(){
+function showSlide(){
+
+    if(pictures.length === 0){
+        return;
+    }
 
 
-    const img =
-    document.getElementById("slideImage");
-
-
-    img.classList.add("fade");
+    img.style.opacity = 0;
 
 
     setTimeout(()=>{
 
+        img.src = pictures[current];
 
-        img.src = images[current];
-
-
-        img.onload=()=>{
-
-            img.classList.remove("fade");
-
+        img.onload = ()=>{
+            img.style.opacity = 1;
         };
 
 
         current++;
 
 
-        if(current>=images.length){
-
-            current=0;
-
+        if(current >= pictures.length){
+            current = 0;
         }
 
 
     },1500);
 
-
 }
 
 
 
-
-setInterval(()=>{
-
-    if(images.length>0){
-
-        showImage();
-
-    }
-
-},7000);
+setInterval(showSlide,7000);
 
 
-
-loadImages();
-
+loadPictures();
 
 
 </script>
 
-
 </body>
-
 </html>
