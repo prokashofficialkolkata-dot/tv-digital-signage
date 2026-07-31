@@ -90,7 +90,7 @@ async function loadImages() {
     });
 
     preview.innerHTML = "";
-
+    console.table(files.map(f => f.name));
     files.forEach(file => {
 
         if (
