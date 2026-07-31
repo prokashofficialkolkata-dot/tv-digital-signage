@@ -1,0 +1,32 @@
+name: Upload Images
+
+on:
+  workflow_dispatch:
+    inputs:
+      filename:
+        required: true
+        type: string
+      image:
+        required: true
+        type: string
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Upload image to repository
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.UPLOAD_TOKEN }}
+          script: |
+            const filename = core.getInput('filename');
+            const image = core.getInput('image');
+
+            await github.rest.repos.createOrUpdateFileContents({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              path: `images/${filename}`,
+              message: `Upload ${filename}`,
+              content: image
+            });
