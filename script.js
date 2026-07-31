@@ -77,6 +77,7 @@ async function loadImages() {
     const response = await fetch(url);
 
     const files = await response.json();
+    console.log(files);
 
     // Sort images by page number
     files.sort((a, b) => {
