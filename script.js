@@ -8,6 +8,7 @@ async function uploadImages(){
     const files = document.getElementById("images").files;
     const message = document.getElementById("message");
 
+
     if(files.length === 0){
         message.innerHTML = "Please select images";
         return;
@@ -46,13 +47,17 @@ async function uploadImages(){
             })
         });
 
-
     }
 
 
     message.innerHTML="All images uploaded successfully";
 
+
+    setTimeout(loadImages,3000);
+
 }
+
+
 
 
 
@@ -71,3 +76,74 @@ function convertBase64(file){
     });
 
 }
+
+
+
+
+
+// Show Current Images
+
+async function loadImages(){
+
+
+const preview = document.getElementById("preview");
+
+
+preview.innerHTML="Loading images...";
+
+
+const url =
+`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${IMAGE_FOLDER}`;
+
+
+
+const response = await fetch(url);
+
+
+const files = await response.json();
+
+
+
+preview.innerHTML="";
+
+
+
+files.forEach(file=>{
+
+
+if(
+file.name.toLowerCase().endsWith(".jpg") ||
+file.name.toLowerCase().endsWith(".jpeg") ||
+file.name.toLowerCase().endsWith(".png")
+){
+
+
+
+let img=document.createElement("img");
+
+
+img.src=file.download_url;
+
+
+img.title=file.name;
+
+
+preview.appendChild(img);
+
+
+}
+
+
+
+});
+
+
+}
+
+
+
+
+
+// Load images when Admin Panel opens
+
+loadImages();
