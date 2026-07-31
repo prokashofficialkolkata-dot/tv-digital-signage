@@ -5,7 +5,46 @@
 <title>Hameeds TV Digital Signage</title>
 
 <style>
+.clock-box{
+    position:fixed;
+    bottom:25px;
+    right:25px;
 
+    background:rgba(0,0,0,0.65);
+    color:white;
+
+    padding:12px 22px;
+
+    border-radius:15px;
+
+    font-family:Arial, sans-serif;
+
+    text-align:center;
+
+    box-shadow:0 0 15px rgba(255,255,255,0.25);
+
+    backdrop-filter:blur(8px);
+
+    z-index:10;
+}
+
+
+#time{
+    font-size:32px;
+    font-weight:bold;
+}
+
+
+#date{
+    font-size:18px;
+    margin-top:5px;
+}
+
+#day{
+    font-size:20px;
+    font-weight:bold;
+}
+    
 html, body {
     margin:0;
     padding:0;
@@ -46,10 +85,55 @@ html, body {
 
 <img id="image1" class="layer">
 <img id="image2" class="layer">
+<div class="clock-box">
 
+<div id="time"></div>
+
+<div id="day"></div>
+
+<div id="date"></div>
+
+</div>
 
 <script>
+function updateClock(){
 
+let now = new Date();
+
+
+let time = now.toLocaleTimeString("en-MY",{
+hour:"2-digit",
+minute:"2-digit",
+second:"2-digit",
+hour12:false
+});
+
+
+let day = now.toLocaleDateString("en-MY",{
+weekday:"long"
+});
+
+
+let date = now.toLocaleDateString("en-MY",{
+day:"2-digit",
+month:"long",
+year:"numeric"
+});
+
+
+document.getElementById("time").innerHTML=time;
+
+document.getElementById("day").innerHTML=day;
+
+document.getElementById("date").innerHTML=date;
+
+
+}
+
+
+setInterval(updateClock,1000);
+
+updateClock();
 
 const OWNER = "prokashofficialkolkata-dot";
 const REPO = "tv-digital-signage";
